@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Column Selecting and Plotting</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<p> Now selsct the columns you want to plot and the type of graph:</p>
+
+
+<form action= "/plot" method = "post">
+    
+    X Columns:
+    <select name = "x_columns">
+        {% for column in columns %}
+            <option value="{{ column }}">{{ column }}</option>
+        {% endfor %}
+    </select>
+
+    Y Columns:
+    <select name = "y_columns"> 
+        {% for column in columns %}
+            <option value="{{ column }}">{{ column }}</option>
+        {% endfor %}
+    </select>
+
+    Graph type:
+    <select name = "graph_type">
+        <option value="line">Line</option>
+        <option value="bar">Bar</option>
+        <option value="scatter">Scatter</option>
+        <option value="histogram">Histogram</option>
+    </select>
+
+    <p>Do you want to get an AI description of the columns?</p>
+        <label>
+            <input type="checkbox" name="ai_description" value="yes"> Yes
+        </label>
+
+    <button type="submit">Plot</button>
+
+
+</form>
+</body>
+</html>

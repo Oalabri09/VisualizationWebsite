@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>  
+<head>
+    <title>Plotting page</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <p>Your graph is ready!!</p>
+    <img src="data:/png;base64,{{plot_data}}">
+
+    <div class="container">
+
+    {% for column, info in descriptions.items() %}
+
+        <div class="box">
+
+            <h3>{{ column }}</h3>
+
+            <p>
+                {{ info["description"] }}
+            </p>
+
+            <b>Sample values</b>
+
+            <ul>
+                {% for value in info["sample_data"] %}
+                    <li>{{ value }}</li>
+                {% endfor %}
+            </ul>
+
+        </div>
+
+    {% endfor %}
+
+
+    </div>
+</body>
+
+
+
+
+</html>

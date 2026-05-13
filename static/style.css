@@ -1,0 +1,81 @@
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background-color:blanchedalmond
+}
+form {
+    margin: 20px;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    display: flex;
+    flex-direction: column;
+}
+select {
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #aba3a3;
+    border-radius: 10px;
+}
+button {
+    padding: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: wheat;
+    border-radius: 10px;
+    cursor: pointer;
+}
+button:hover {
+    background-color: #45a049;
+}
+input[type="file"] { 
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #aba3a3;
+    border-radius: 10px;
+}
+
+input[type="file"]::file-selector-button {
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: rgb(153, 112, 37);
+    color:#f9f9f9;
+    border: none;
+    border-radius: 10px;
+
+}
+p {
+    font-size: 24px;
+    text-align: center;
+    color: #333;
+}
+p3 {
+    font-size: 18px;
+    text-align: center;
+    color: #0e0b0b;
+}
+label {
+    font-size: 20px;
+    color: #555;
+    margin-bottom: 10px;
+    align-self: center;
+}
+.container { 
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+.box { 
+    border: 8px saddlebrown;
+    border-radius: 20px;
+    padding: 15px;
+    background-color: rgb(203, 157, 101);
+}
+img { 
+    max-width: 700px;
+    border: 8px #555;
+    display: block;
+    margin-bottom: 20px;
+
+}
