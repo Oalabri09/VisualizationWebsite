@@ -4,7 +4,11 @@ from matplotlib.figure import Figure
 import os
 import io
 import base64
-from transformers import pipeline
+from groq import Groq
+from dotenv import load_dotenv
+
+load_dotenv()
+
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
@@ -13,14 +17,28 @@ os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 df = None
 maximum = 5
 
+ai_client = Groq()
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
+TOTAL_REQUESTS = 0
+MAX_ALL_REQUESTS = 500
+
+
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/contact')
+def contact():
+    return render_template('contact.html')
 
 @app.route('/uploads', methods=['POST'])
 def upload_file():
     global df
     file = request.files['file']
+    maximum = request.form.get("quantity")
+    if maximum:
+        maximum = int(maximum)
+        
     if file:
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
         file.save(filepath)
@@ -35,25 +53,30 @@ def upload_file():
 @app.route('/plot', methods=['POST'])
 def plot():
     global df
-    x_column = request.form['x_columns']
-    y_column = request.form['y_columns']
+    x_column_name = request.form['x_columns']
+    #print(x_column_name)
+    y_column_name = request.form['y_columns']
     graph_type = request.form['graph_type']
 
     fig = Figure()
     ax = fig.subplots()
 
-    if graph_type == 'line':
-        ax.plot(df[x_column], df[y_column])
-    elif graph_type == 'bar':
-        ax.bar(df[x_column], df[y_column])
-    elif graph_type == 'scatter':
-        ax.scatter(df[x_column], df[y_column])
-    elif graph_type == 'histogram': 
-        ax.hist(df[x_column], bins=20)
+    x_column = df[x_column_name].dropna()
+    y_column = df[y_column_name].dropna()
+    
 
-    ax.set_xlabel(x_column)
-    ax.set_ylabel(y_column)
-    ax.set_title(f"{graph_type.title()} plot of {y_column} vs {x_column}")
+    if graph_type == 'line':
+        ax.plot(x_column.dropna(), y_column)
+    elif graph_type == 'bar':
+        ax.bar(x_column, y_column)
+    elif graph_type == 'scatter':
+        ax.scatter(x_column, y_column)
+    elif graph_type == 'histogram': 
+        ax.hist(x_column, bins=20)
+
+    ax.set_xlabel(x_column_name)
+    ax.set_ylabel(y_column_name)
+    ax.set_title(f"{graph_type.title()} plot of {y_column_name} vs {x_column_name}")
 
     buf = io.BytesIO()
     fig.savefig(buf, format='png')
@@ -63,38 +86,43 @@ def plot():
 
     use_ai = request.form.get("ai_description")
 
-    pipe = pipeline(
-        "text-generation",
-        model="TinyLlama/TinyLlama-1.1B-Chat-v1.0"
-    )
+
     columns = df.columns.tolist()[:maximum]
     descriptions = {}
+
     if use_ai:
+        global TOTAL_REQUESTS
         for colm in columns:
-            sample_data = df[colm].dropna().head(5).tolist()
+            
+            if TOTAL_REQUESTS > MAX_ALL_REQUESTS:
+                print("YOU HAVE REACHED YOURR LIMIT")
+                continue
+
+            sample_data = df[colm].dropna().head(10).tolist()
+
             prompt = f"""
-            <|system|>
-            You describe what the column name refers to.
+            You are a data analysis assistant. Analyze the column name and its sample data to define what it represents.
+            column name: {colm}
+            sample data: {sample_data}
 
-            <|user|>
-            Column name: {colm}
-
-
-            ONE sentence only start with refers to.
-
-            <|assistant|>
+            Provide ONE sentence only, starting exactly with the phrase "refers to".
             """
 
-            result = pipe(
-                prompt,
-                max_new_tokens=20,
-                temperature=0.2,
-                do_sample=True,
-                return_full_text=False
-            )
+            try:
+                ai_response = ai_client.chat.completions.create(
+                    model="llama-3.1-8b-instant",
+                    messages = [{"role": "user", "content": prompt}],
+                    max_tokens = 30,
+                    temperature = 0.2
+                )
+                ai_text = ai_response.choices[0].message.content.strip()
+                TOTAL_REQUESTS += 1
+            except Exception as e:
+                print("Couldnt be processed")
+
 
             descriptions[colm] = {
-                "description": result[0]["generated_text"],
+                "description": ai_text,
                 "sample_data": sample_data
             }
 

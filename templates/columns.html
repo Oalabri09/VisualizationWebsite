@@ -6,6 +6,15 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
+
+{% extends "base.html" %}
+
+{% block title %}
+Home
+{% endblock %}
+
+{% block content %}
+
 <body>
 
 <p> Now selsct the columns you want to plot and the type of graph:</p>
@@ -46,3 +55,4 @@
 </form>
 </body>
 </html>
+{% endblock %}

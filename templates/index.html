@@ -1,12 +1,16 @@
 <!DOCTYPE html>
 <html>
 
-<head>
-    <title>Upload csv file</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
+{% extends "base.html" %}
 
-<body>
+{% block title %}
+Home
+{% endblock %}
+
+{% block content %}
+
+
+
 
 <p>Upload a CSV file to visualize its columns:</p>
 
@@ -14,8 +18,13 @@
 <form action="/uploads" method ="post" enctype="multipart/form-data">
     <input type="file" name="file">
     <button type="submit">Upload</button>
+    <label for="quantity" class="column_selection">How many columns do you want to use?</label>
+    <input type="number" name="quantity" min="0" max="10" class="number_input_box">
 </form>
+
+
 
 </body>
 
 </html>
+{% endblock %}
