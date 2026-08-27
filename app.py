@@ -38,6 +38,8 @@ def upload_file():
     maximum = request.form.get("quantity")
     if maximum:
         maximum = int(maximum)
+    else:
+        maximum = 5
         
     if file:
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
@@ -110,7 +112,7 @@ def plot():
 
             try:
                 ai_response = ai_client.chat.completions.create(
-                    model="llama-3.1-8b-instant",
+                    model= "qwen/qwen3.8-27b",
                     messages = [{"role": "user", "content": prompt}],
                     max_tokens = 30,
                     temperature = 0.2
@@ -118,7 +120,8 @@ def plot():
                 ai_text = ai_response.choices[0].message.content.strip()
                 TOTAL_REQUESTS += 1
             except Exception as e:
-                print("Couldnt be processed")
+                print("Couldnt be processed", e)
+                ai_text = "Couldnt be generated"
 
 
             descriptions[colm] = {
